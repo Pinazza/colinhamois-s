@@ -50,8 +50,10 @@ window.COLINHA_CONFIG = {
     numero: '1355',      // precisa ter a mesma quantidade de dígitos do cargo
     nome: 'Moises Selerges',
     partido: 'PT',
-    // foto oficial do TSE; troque por uma foto de campanha em 'assets/' se preferir
-    foto: 'fotos/FSP250002536738_div.jpg',
+    // A foto dele nos dados abertos do TSE e uma imagem em branco (1,2 KB, todos
+    // os pixels 255), entao aponta para uma foto de campanha. Enquanto o arquivo
+    // nao existir, a colinha mostra a silhueta em vez de um quadrado vazio.
+    foto: 'assets/candidato.jpg',
   },
 
   /* ---------------------------- Base de dados -------------------------- */

@@ -4,5 +4,9 @@ Artes opcionais da campanha (aponte no config.js):
   footer.jpg  400 x 16 px   faixa de baixo
   selo.png    110 x 110 px  selo do candidato, PNG com fundo transparente
   candidato.jpg             foto do candidato fixo (proporcao 40x55)
+                            >>> FALTA ESTE ARQUIVO <<<  a foto do Moises Selerges
+                            nos dados abertos do TSE vem em branco, por isso a
+                            colinha precisa de uma foto de campanha aqui.
+                            Recorte no enquadramento 40x55 (retrato), JPG.
 
 Sem esses arquivos a pagina desenha cabecalho, rodape e selo em CSS.

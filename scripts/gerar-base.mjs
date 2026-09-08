@@ -24,6 +24,7 @@
      --saida <arquivo>  padrão: candidatos.json
      --todos            inclui inaptos, cassados, renúncias e indeferidos
      --sem-fotos        não copia fotos, só gera o JSON
+     --min-foto <n>     ignora foto menor que n bytes (padrão 1700, ver abaixo)
    ================================================================== */
 
 import fs from 'node:fs';
@@ -48,7 +49,7 @@ const CARGOS = {
 };
 
 function lerArgumentos(argv) {
-  const op = { csv: [], fotos: [], uf: '', saida: 'candidatos.json', todos: false, semFotos: false };
+  const op = { csv: [], fotos: [], uf: '', saida: 'candidatos.json', todos: false, semFotos: false, minFoto: 1700 };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--csv') op.csv.push(argv[++i]);
@@ -57,6 +58,7 @@ function lerArgumentos(argv) {
     else if (a === '--saida') op.saida = argv[++i];
     else if (a === '--todos') op.todos = true;
     else if (a === '--sem-fotos') op.semFotos = true;
+    else if (a === '--min-foto') op.minFoto = Math.max(0, parseInt(argv[++i], 10) || 0);
     else if (a.endsWith('.csv')) op.csv.push(a);
     else throw new Error(`argumento desconhecido: ${a}`);
   }
@@ -101,8 +103,10 @@ function tituloDeUrna(texto) {
     .replace(/\b(Da|De|Do|Das|Dos|E)\b/g, (p) => p.toLocaleLowerCase('pt-BR'));
 }
 
-function indexarFotos(pastas) {
+function indexarFotos(pastas, minBytes) {
   const indice = new Map();
+  const chapadas = [];
+
   for (const pasta of pastas) {
     if (!fs.existsSync(pasta)) {
       console.warn(`! pasta de fotos não encontrada: ${pasta}`);
@@ -112,16 +116,37 @@ function indexarFotos(pastas) {
       if (!/\.jpe?g$/i.test(nome)) continue;
       // padrão do TSE: F<UF><SQ_CANDIDATO>_div.jpg
       const casou = nome.match(/^F[A-Z]{2}(\d+)_div\.jpe?g$/i);
-      if (casou) indice.set(casou[1], path.join(pasta, nome));
+      if (!casou) continue;
+
+      const arquivo = path.join(pasta, nome);
+      // Parte das fotos do TSE é uma imagem chapada (branco ou o cinza "sem
+      // foto"): abre sem erro, mas não mostra rosto nenhum, e no santinho fica
+      // um retângulo vazio — pior que a silhueta. Elas são sempre pequenas,
+      // porque imagem chapada comprime a quase nada. Na base de SP de 2026, as
+      // 26 chapadas tinham no máximo 1685 bytes e a menor foto de verdade
+      // tinha 1777, daí o padrão de 1700.
+      if (minBytes > 0 && fs.statSync(arquivo).size < minBytes) {
+        chapadas.push(nome);
+        continue;
+      }
+      indice.set(casou[1], arquivo);
     }
   }
-  return indice;
+
+  return { indice, chapadas };
 }
 
 function main() {
   const op = lerArgumentos(process.argv.slice(2));
-  const indiceFotos = op.semFotos ? new Map() : indexarFotos(op.fotos);
-  if (!op.semFotos) console.log(`fotos disponíveis: ${indiceFotos.size}`);
+  const { indice: indiceFotos, chapadas } = op.semFotos
+    ? { indice: new Map(), chapadas: [] }
+    : indexarFotos(op.fotos, op.minFoto);
+  if (!op.semFotos) {
+    console.log(`fotos disponíveis: ${indiceFotos.size}`);
+    if (chapadas.length) {
+      console.log(`fotos chapadas ignoradas (< ${op.minFoto} bytes): ${chapadas.length}`);
+    }
+  }
 
   const base = { presidente: {}, governador: {}, senador: {}, federal: {}, estadual: {} };
   const pastaFotos = path.join(RAIZ, 'fotos');
@@ -191,7 +216,8 @@ function main() {
   }
   console.log('');
   console.log(`registros lidos: ${contagem.lidos}`);
-  console.log(`candidatos na base: ${contagem.usados} (${contagem.comFoto} com foto)`);
+  console.log(`candidatos na base: ${contagem.usados} (${contagem.comFoto} com foto, ` +
+    `${contagem.usados - contagem.comFoto} sem foto usável no TSE)`);
   console.log(`arquivo gerado: ${saida}`);
 
   if (conflitos.size) {
