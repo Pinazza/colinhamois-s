@@ -1,0 +1,8 @@
+Artes opcionais da campanha (aponte no config.js):
+
+  header.jpg  400 x 68 px   faixa de cima ("COMO VOTAR")
+  footer.jpg  400 x 16 px   faixa de baixo
+  selo.png    110 x 110 px  selo do candidato, PNG com fundo transparente
+  candidato.jpg             foto do candidato fixo (proporcao 40x55)
+
+Sem esses arquivos a pagina desenha cabecalho, rodape e selo em CSS.

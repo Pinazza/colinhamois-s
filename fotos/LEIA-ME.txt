@@ -1,0 +1,3 @@
+As fotos dos candidatos ficam aqui.
+O nome de cada arquivo e o campo "foto" do candidatos.json.
+O script scripts/gerar-base.mjs copia as fotos do TSE para esta pasta.

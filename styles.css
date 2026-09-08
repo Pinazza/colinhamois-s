@@ -1,0 +1,408 @@
+/* ------------------------------------------------------------------
+   Colinha de votacao — as cores e as artes vem do config.js
+   (as variaveis abaixo sao apenas o padrao de fabrica)
+------------------------------------------------------------------ */
+:root {
+  --blue-brand: #0b4a9e;
+  --green-brand: #29a738;
+  --yellow-brand: #ffce00;
+  --bg-card: #e4e4db;
+  --grey-photo: #8c8c8c;
+  --text-dark: #333333;
+
+  /* altura das faixas de topo e de base do santinho, e tamanho do selo */
+  --header-h: 68px;
+  --bottom-h: 16px;
+  --badge-size: 110px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background-color: #f0f0f0;
+  font-family: Arial, Helvetica, sans-serif;
+  display: flex;
+  justify-content: center;
+  color: var(--text-dark);
+}
+
+.app-container {
+  width: 100%;
+  max-width: 440px;
+  padding: 15px;
+  position: relative;
+}
+
+.btn-voltar {
+  display: inline-block;
+  margin-bottom: 15px;
+  color: var(--blue-brand);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+/* Wrapper do santinho (proporcao 4:5 travada) */
+.export-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.export-area {
+  width: 400px;
+  height: 500px;
+  background-color: var(--bg-card);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  border: 1px solid #ccc;
+}
+
+/* Na hora de gerar a imagem o card volta ao tamanho real */
+.export-area.capturando {
+  transform: none !important;
+  margin-bottom: 0 !important;
+}
+
+/* Ajuste para telas pequenas */
+@media (max-width: 420px) {
+  .export-area {
+    transform: scale(0.85);
+    transform-origin: top center;
+    margin-bottom: -75px;
+  }
+}
+@media (max-width: 360px) {
+  .export-area {
+    transform: scale(0.75);
+    margin-bottom: -125px;
+  }
+}
+
+/* ----------------------------- Cabecalho ----------------------------- */
+.top-header {
+  width: 100%;
+  height: var(--header-h);
+  flex-shrink: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+}
+
+/* Arte em CSS usada quando nao ha imagem de cabecalho no config */
+.header-art {
+  width: 100%;
+  height: 100%;
+  padding: 6px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: linear-gradient(100deg, #0d7a2a 0%, var(--green-brand) 55%, #7ac143 100%);
+}
+.top-header.tem-imagem .header-art { display: none; }
+
+.header-title {
+  font-size: 30px;
+  font-weight: 900;
+  font-style: italic;
+  color: #fff;
+  line-height: 1;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 3px rgba(0, 0, 0, 0.25);
+}
+.header-check {
+  color: var(--yellow-brand);
+  font-style: normal;
+  font-size: 26px;
+}
+.header-sub {
+  margin-top: 4px;
+  font-size: 9.5px;
+  font-weight: bold;
+  color: #eaffea;
+  letter-spacing: 0.2px;
+}
+
+/* CNPJ / texto legal na vertical, na lateral direita */
+.legal-vertical {
+  position: absolute;
+  right: -130px;
+  top: 220px;
+  transform: rotate(-90deg);
+  font-size: 6.5px;
+  color: #888;
+  width: 290px;
+  text-align: center;
+  letter-spacing: 0.5px;
+  z-index: 5;
+}
+
+/* --------------------------- Lista de cargos -------------------------- */
+.main-content {
+  flex: 1;
+  min-height: 0;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+
+.candidate-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.photo-box {
+  width: 40px;
+  height: 55px;
+  background: var(--grey-photo);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.photo-box img { width: 100%; height: 100%; object-fit: cover; }
+.photo-box.com-foto { background: #fff; }
+.search-icon { font-size: 14px; color: #ccc; }
+
+.info-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.role-header {
+  font-size: 10px;
+  font-weight: 900;
+  color: var(--text-dark);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+/* as duas ultimas linhas ficam na altura do selo: o nome para antes dele */
+.export-area.com-selo .candidate-row:nth-last-child(-n+2) .role-header {
+  padding-right: calc(var(--badge-size) - 15px);
+}
+.role-header .c-info {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.role-header .c-nome { color: var(--blue-brand); font-size: 10px; }
+.role-header .c-partido { font-weight: normal; font-size: 8px; color: #555; }
+.role-header .c-erro { color: #cc1111; font-size: 9px; font-weight: bold; }
+
+.action-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.digit-container { display: flex; gap: 4px; position: relative; }
+
+.digit-box {
+  width: 34px;
+  height: 42px;
+  background: var(--blue-brand);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  font-weight: 900;
+  color: #fff;
+  transition: background-color 0.1s;
+}
+
+/* Quadrados do candidato fixo (numero em amarelo) */
+.box-destaque { color: var(--yellow-brand); }
+
+/* Foco da digitacao */
+.digit-box.current {
+  background: #08387a;
+  border: 2px solid var(--yellow-brand);
+}
+
+.hidden-input {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 10;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  font-size: 16px; /* evita o zoom automatico do iOS */
+}
+
+.btn-confirma {
+  background: var(--green-brand);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
+  padding: 4px 10px;
+  border-radius: 12px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+/* ------------------------------- Rodape ------------------------------- */
+.footer-santinho {
+  text-align: center;
+  font-size: 9px;
+  color: #666;
+  padding-bottom: 5px;
+  background: var(--bg-card);
+  flex-shrink: 0;
+}
+
+/* com selo no canto, o rodape se afasta para nao ficar por baixo dele */
+.export-area.com-selo .footer-santinho {
+  padding-right: calc(var(--badge-size) - 20px);
+}
+
+.bottom-bar {
+  width: 100%;
+  height: var(--bottom-h);
+  flex-shrink: 0;
+  background: linear-gradient(90deg, var(--blue-brand) 0%, #1565c0 100%);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  margin-top: auto;
+}
+
+/* Selo do candidato */
+.badge {
+  position: absolute;
+  bottom: var(--bottom-h);
+  right: 15px;
+  width: var(--badge-size);
+  height: var(--badge-size);
+  z-index: 20;
+}
+.badge img { width: 100%; height: 100%; object-fit: contain; }
+.badge.vazio { display: none; }
+
+/* Selo em CSS usado quando nao ha imagem de selo no config */
+.badge-art {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--blue-brand);
+  border: 3px solid var(--yellow-brand);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 6px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+.badge-art .b-nome {
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+.badge-art .b-numero {
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--yellow-brand);
+  line-height: 1.1;
+}
+.badge-art .b-cargo {
+  font-size: 6.5px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+
+/* ---------------------------- Botoes da tela --------------------------- */
+.acoes { margin-top: 25px; }
+
+.btn-acao {
+  width: 100%;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  margin-bottom: 10px;
+  text-align: center;
+  border: none;
+  text-transform: uppercase;
+  transition: transform 0.1s;
+  font-family: inherit;
+}
+.btn-acao:active { transform: scale(0.98); }
+.btn-acao[disabled] { opacity: 0.7; cursor: default; }
+.btn-primary { background: var(--blue-brand); color: #fff; }
+.btn-secondary { background: transparent; border: 2px solid var(--blue-brand); color: var(--blue-brand); }
+
+.btn-limpar {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 12px;
+  padding: 6px;
+  cursor: pointer;
+  text-decoration: underline;
+  font-family: inherit;
+}
+
+.aviso-privacidade {
+  margin: 18px 4px 0;
+  font-size: 11px;
+  line-height: 1.45;
+  color: #8a8a8a;
+  text-align: center;
+}
+
+/* Tela de "pressione e segure" do iOS */
+.ios-save {
+  text-align: center;
+  padding: 20px;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f0f0f0;
+  min-height: 100vh;
+}
+.ios-save h2 { color: var(--blue-brand); font-size: 18px; margin-bottom: 5px; }
+.ios-save p { font-size: 12px; color: #555; margin-top: 0; }
+.ios-save img {
+  max-width: 100%;
+  border: 2px solid var(--blue-brand);
+  border-radius: 10px;
+  margin-top: 10px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+.ios-save a {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 12px 24px;
+  background: var(--blue-brand);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: bold;
+  text-transform: uppercase;
+}

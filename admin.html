@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Painel da Colinha</title>
+  <script src="config.js"></script>
+  <style>
+    :root {
+      --azul: #0b4a9e;
+      --azul-claro: #e8eef8;
+      --tinta: #1c1f24;
+      --tinta-2: #5b616b;
+      --tinta-3: #8b919b;
+      --linha: #e6e8ec;
+      --fundo: #f6f7f9;
+      --cartao: #ffffff;
+      --erro: #b3261e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--fundo);
+      color: var(--tinta);
+      font: 14px/1.5 -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    }
+    a { color: var(--azul); }
+
+    .topo {
+      background: var(--cartao);
+      border-bottom: 1px solid var(--linha);
+      padding: 14px 20px;
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .topo h1 { font-size: 16px; margin: 0; letter-spacing: -0.2px; }
+    .topo .campanha { font-size: 12px; color: var(--tinta-3); }
+    .topo .sair { margin-left: auto; font-size: 12px; }
+
+    .conteudo { max-width: 1000px; margin: 0 auto; padding: 20px; }
+
+    /* ---------------------------- entrada ---------------------------- */
+    .entrada {
+      max-width: 340px;
+      margin: 12vh auto;
+      background: var(--cartao);
+      border: 1px solid var(--linha);
+      border-radius: 12px;
+      padding: 24px;
+    }
+    .entrada h1 { font-size: 17px; margin: 0 0 4px; }
+    .entrada p { margin: 0 0 18px; color: var(--tinta-2); font-size: 13px; }
+    .entrada input {
+      width: 100%; padding: 11px 12px; font-size: 15px; font-family: inherit;
+      border: 1px solid #cfd4dc; border-radius: 8px; margin-bottom: 10px;
+    }
+    .entrada input:focus { outline: 2px solid var(--azul); outline-offset: -1px; border-color: var(--azul); }
+    .entrada button {
+      width: 100%; padding: 11px; font-size: 14px; font-weight: 700; font-family: inherit;
+      background: var(--azul); color: #fff; border: 0; border-radius: 8px; cursor: pointer;
+    }
+    .recado { font-size: 12px; margin-top: 10px; min-height: 16px; }
+    .recado.ruim { color: var(--erro); }
+
+    /* ----------------------------- filtros ---------------------------- */
+    .filtros { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .filtros .periodo { display: flex; border: 1px solid #cfd4dc; border-radius: 8px; overflow: hidden; background: var(--cartao); }
+    .filtros button {
+      border: 0; background: transparent; padding: 7px 13px; font: inherit; font-size: 13px;
+      cursor: pointer; color: var(--tinta-2); border-right: 1px solid var(--linha);
+    }
+    .filtros button:last-child { border-right: 0; }
+    .filtros button[aria-pressed="true"] { background: var(--azul); color: #fff; font-weight: 700; }
+    .filtros .atualizado { margin-left: auto; font-size: 12px; color: var(--tinta-3); }
+
+    /* ------------------------------ cartões --------------------------- */
+    .numeros {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .tile {
+      background: var(--cartao); border: 1px solid var(--linha); border-radius: 12px; padding: 14px 16px;
+    }
+    .tile .rotulo { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--tinta-3); }
+    .tile .valor { font-size: 30px; font-weight: 700; letter-spacing: -1px; margin: 4px 0 0; font-variant-numeric: tabular-nums; }
+    .tile .apoio { font-size: 12px; color: var(--tinta-2); }
+
+    .cartao {
+      background: var(--cartao); border: 1px solid var(--linha); border-radius: 12px;
+      padding: 16px 18px 12px; margin-bottom: 20px;
+    }
+    .cartao h2 { font-size: 14px; margin: 0 0 2px; }
+    .cartao .sub { font-size: 12px; color: var(--tinta-3); margin: 0 0 16px; }
+
+    /* ---------------------- barras: acessos por dia -------------------- */
+    .grafico { position: relative; height: 190px; margin: 0 0 6px 34px; }
+    .grade { position: absolute; inset: 0; }
+    .grade div { position: absolute; left: 0; right: 0; border-top: 1px solid var(--linha); }
+    .grade span {
+      position: absolute; right: calc(100% + 8px); transform: translateY(-50%);
+      font-size: 10px; color: var(--tinta-3); font-variant-numeric: tabular-nums; white-space: nowrap;
+    }
+    .barras { position: absolute; inset: 0; display: flex; align-items: flex-end; gap: 2px; }
+    .col { flex: 1 1 0; height: 100%; display: flex; align-items: flex-end; position: relative; min-width: 3px; }
+    .col .barra {
+      width: 100%; background: var(--azul); border-radius: 4px 4px 0 0; min-height: 0;
+    }
+    .col:hover .barra { background: #08387a; }
+    .col .dica {
+      position: absolute; bottom: 100%; left: 50%; transform: translate(-50%, -6px);
+      background: var(--tinta); color: #fff; font-size: 11px; line-height: 1.35;
+      padding: 6px 8px; border-radius: 6px; white-space: nowrap; pointer-events: none;
+      opacity: 0; transition: opacity .1s; z-index: 5;
+    }
+    .col:hover .dica, .col:focus-visible .dica { opacity: 1; }
+    .dias { position: relative; height: 14px; margin: 0 0 4px 34px; }
+    .dias span {
+      position: absolute; top: 0; transform: translateX(-50%);
+      font-size: 10px; color: var(--tinta-3); white-space: nowrap;
+    }
+
+    details.tabela { margin: 4px 0 0 34px; }
+    details.tabela summary { font-size: 12px; color: var(--tinta-2); cursor: pointer; }
+
+    /* --------------------------- ranking ------------------------------ */
+    .cargo { margin-bottom: 22px; }
+    .cargo h3 {
+      font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px;
+      color: var(--tinta-2); margin: 0 0 8px; display: flex; align-items: baseline; gap: 8px;
+    }
+    .cargo h3 .conta { font-weight: 400; color: var(--tinta-3); letter-spacing: 0; text-transform: none; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 6px 8px; font-size: 13px; border-bottom: 1px solid var(--linha); }
+    th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--tinta-3); font-weight: 600; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    td.numero { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--azul); white-space: nowrap; }
+    .partido { color: var(--tinta-3); font-size: 11px; margin-left: 6px; }
+    td.nome { max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    td.barra-cel { width: 34%; padding-right: 0; }
+    .mini { background: var(--azul); height: 8px; border-radius: 0 4px 4px 0; min-width: 2px; }
+    tbody tr:hover { background: var(--azul-claro); }
+    .mostrar-todos {
+      margin-top: 8px; background: none; border: 0; padding: 4px 0; font: inherit; font-size: 12px;
+      color: var(--azul); cursor: pointer; text-decoration: underline;
+    }
+    .vazio { color: var(--tinta-3); font-size: 13px; padding: 8px 0 0; }
+    .nota { font-size: 12px; color: var(--tinta-3); margin: 18px 0 0; }
+  </style>
+</head>
+<body>
+
+  <!-- tela de senha -->
+  <form class="entrada" id="entrada">
+    <h1>Painel da Colinha</h1>
+    <p>Uso interno da campanha.</p>
+    <input type="password" id="senha" placeholder="Senha do painel" autocomplete="current-password" required>
+    <button type="submit">Entrar</button>
+    <div class="recado" id="recado-entrada"></div>
+  </form>
+
+  <!-- painel -->
+  <div id="painel" hidden>
+    <div class="topo">
+      <h1>Painel da Colinha</h1>
+      <span class="campanha" id="campanha"></span>
+      <a class="sair" href="#" id="sair">sair</a>
+    </div>
+
+    <div class="conteudo">
+      <div class="filtros">
+        <div class="periodo" role="group" aria-label="Período">
+          <button type="button" data-dias="7">7 dias</button>
+          <button type="button" data-dias="30" aria-pressed="true">30 dias</button>
+          <button type="button" data-dias="90">90 dias</button>
+          <button type="button" data-dias="365">1 ano</button>
+        </div>
+        <span class="atualizado" id="atualizado"></span>
+      </div>
+
+      <div class="numeros" id="tiles"></div>
+
+      <div class="cartao">
+        <h2>Acessos por dia</h2>
+        <p class="sub" id="sub-grafico">Cada barra é um dia. Passe o mouse para ver os números.</p>
+        <div class="grafico">
+          <div class="grade" id="grade"></div>
+          <div class="barras" id="barras"></div>
+        </div>
+        <div class="dias" id="dias"></div>
+        <details class="tabela">
+          <summary>ver os números em tabela</summary>
+          <div id="tabela-dias"></div>
+        </details>
+      </div>
+
+      <div class="cartao">
+        <h2>Números que os eleitores digitaram</h2>
+        <p class="sub">
+          Contagem por cargo, do mais escolhido para o menos. O número fixo do candidato
+          não entra aqui — só o que o eleitor preencheu.
+        </p>
+        <div id="ranking"></div>
+      </div>
+
+      <p class="nota" id="nota-erro"></p>
+    </div>
+  </div>
+
+  <script>
+    var CARGOS = [
+      { chave: 'presidente', rotulo: 'Presidente' },
+      { chave: 'governador', rotulo: 'Governador' },
+      { chave: 'senador1',   rotulo: 'Senador (1º voto)' },
+      { chave: 'senador2',   rotulo: 'Senador (2º voto)' },
+      { chave: 'federal',    rotulo: 'Deputado federal' },
+      { chave: 'estadual',   rotulo: 'Deputado estadual' }
+    ];
+    // a base do senador serve para os dois votos
+    var BASE_DO_CARGO = { presidente: 'presidente', governador: 'governador', senador1: 'senador', senador2: 'senador', federal: 'federal', estadual: 'estadual' };
+
+    var CHAVE_SENHA = 'colinha:painel:senha';
+    var campanha = (window.COLINHA_CONFIG && window.COLINHA_CONFIG.slug) || '';
+    var base = {};
+    var dias = 30;
+
+    function $(id) { return document.getElementById(id); }
+    function senha() { try { return sessionStorage.getItem(CHAVE_SENHA) || ''; } catch (e) { return ''; } }
+    function inteiro(n) { return (n || 0).toLocaleString('pt-BR'); }
+
+    /* --------------------------- entrada ---------------------------- */
+
+    $('entrada').addEventListener('submit', function (e) {
+      e.preventDefault();
+      try { sessionStorage.setItem(CHAVE_SENHA, $('senha').value); } catch (err) { /* segue */ }
+      carregar(true);
+    });
+
+    $('sair').addEventListener('click', function (e) {
+      e.preventDefault();
+      try { sessionStorage.removeItem(CHAVE_SENHA); } catch (err) { /* segue */ }
+      location.reload();
+    });
+
+    [].forEach.call(document.querySelectorAll('.periodo button'), function (b) {
+      b.addEventListener('click', function () {
+        [].forEach.call(document.querySelectorAll('.periodo button'), function (o) { o.removeAttribute('aria-pressed'); });
+        b.setAttribute('aria-pressed', 'true');
+        dias = parseInt(b.dataset.dias, 10);
+        carregar(false);
+      });
+    });
+
+    /* ---------------------------- dados ----------------------------- */
+
+    function carregar(vindoDaEntrada) {
+      var recado = $('recado-entrada');
+      if (vindoDaEntrada) { recado.textContent = 'Entrando...'; recado.className = 'recado'; }
+
+      var url = '/api/painel?dias=' + dias + (campanha ? '&campanha=' + encodeURIComponent(campanha) : '');
+
+      fetch(url, { headers: { 'x-senha': senha() } })
+        .then(function (r) {
+          return r.json().catch(function () { return {}; }).then(function (corpo) {
+            if (!r.ok) throw new Error(corpo.erro || ('erro ' + r.status));
+            return corpo;
+          });
+        })
+        .then(function (dados) {
+          $('entrada').hidden = true;
+          $('painel').hidden = false;
+          $('campanha').textContent = campanha || '';
+          desenhar(dados);
+        })
+        .catch(function (erro) {
+          if (!$('painel').hidden) { $('nota-erro').textContent = 'Não deu para atualizar: ' + erro.message; return; }
+          recado.textContent = erro.message;
+          recado.className = 'recado ruim';
+        });
+    }
+
+    // a mesma base da colinha resolve nome e partido de cada número
+    function carregarBase() {
+      return fetch('candidatos.json', { cache: 'no-cache' })
+        .then(function (r) { return r.json(); })
+        .then(function (d) { base = d || {}; })
+        .catch(function () { base = {}; });
+    }
+
+    /* --------------------------- desenho ---------------------------- */
+
+    function desenhar(d) {
+      $('nota-erro').textContent = '';
+      var t = d.totais || {}, hoje = d.hoje || {};
+
+      $('tiles').innerHTML = [
+        tile('Acessos', inteiro(t.acessos), 'hoje: ' + inteiro(hoje.acessos)),
+        tile('Pessoas', inteiro(t.pessoas), 'navegadores diferentes'),
+        tile('Colinhas montadas', inteiro(t.colinhas), 'preencheram algum número'),
+        tile('Imagens salvas', inteiro(t.salvou), inteiro(t.compartilhou) + ' compartilharam o link')
+      ].join('');
+
+      grafico(d.por_dia || []);
+      ranking(d.numeros || []);
+
+      var quando = d.gerado_em ? new Date(d.gerado_em) : new Date();
+      $('atualizado').textContent = 'atualizado às ' + quando.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      $('sub-grafico').textContent = 'Últimos ' + (d.dias || dias) + ' dias. Passe o mouse em uma barra para ver o dia.';
+    }
+
+    function tile(rotulo, valor, apoio) {
+      return '<div class="tile"><div class="rotulo">' + rotulo + '</div>' +
+        '<p class="valor">' + valor + '</p>' +
+        '<div class="apoio">' + (apoio || '') + '</div></div>';
+    }
+
+    function diaCurto(iso) {
+      var p = String(iso).split('-');
+      return p[2] + '/' + p[1];
+    }
+
+    function grafico(serie) {
+      var maximo = serie.reduce(function (m, x) { return Math.max(m, x.acessos || 0); }, 0);
+      var teto = Math.max(4, Math.ceil(maximo * 1.15));
+
+      var grade = '';
+      for (var i = 0; i <= 4; i++) {
+        var valor = Math.round(teto * (1 - i / 4));
+        grade += '<div style="top:' + (i * 25) + '%"><span>' + inteiro(valor) + '</span></div>';
+      }
+      $('grade').innerHTML = grade;
+
+      // um rótulo a cada N dias, para nenhum encostar no outro
+      var passo = Math.max(1, Math.ceil(serie.length / 8));
+
+      $('barras').innerHTML = serie.map(function (x) {
+        var altura = teto ? ((x.acessos || 0) / teto) * 100 : 0;
+        var dica = diaCurto(x.dia) + '<br>' + inteiro(x.acessos) + ' acesso(s)' +
+                   '<br>' + inteiro(x.pessoas) + ' pessoa(s)' +
+                   '<br>' + inteiro(x.salvou) + ' salvaram';
+        return '<div class="col" tabindex="0"><div class="dica">' + dica + '</div>' +
+               '<div class="barra" style="height:' + altura.toFixed(2) + '%"></div></div>';
+      }).join('');
+
+      var ultimo = serie.length - 1;
+      $('dias').innerHTML = serie.map(function (x, i) {
+        var marcar = i % passo === 0 || i === ultimo;
+        // o último só entra se não for encostar no rótulo anterior
+        if (i === ultimo && ultimo % passo !== 0 && (ultimo - Math.floor(ultimo / passo) * passo) < passo / 2) marcar = false;
+        if (!marcar) return '';
+        var posicao = serie.length > 1 ? ((i + 0.5) / serie.length) * 100 : 50;
+        return '<span style="left:' + posicao.toFixed(2) + '%">' + diaCurto(x.dia) + '</span>';
+      }).join('');
+
+      $('tabela-dias').innerHTML =
+        '<table><thead><tr><th>Dia</th><th class="num">Acessos</th><th class="num">Pessoas</th><th class="num">Salvaram</th></tr></thead><tbody>' +
+        serie.slice().reverse().map(function (x) {
+          return '<tr><td>' + x.dia.split('-').reverse().join('/') + '</td>' +
+            '<td class="num">' + inteiro(x.acessos) + '</td>' +
+            '<td class="num">' + inteiro(x.pessoas) + '</td>' +
+            '<td class="num">' + inteiro(x.salvou) + '</td></tr>';
+        }).join('') + '</tbody></table>';
+    }
+
+    function nomeDe(cargo, numero) {
+      var tabela = base[BASE_DO_CARGO[cargo]] || {};
+      return tabela[numero] || null;
+    }
+
+    function ranking(lista) {
+      var caixa = $('ranking');
+      caixa.innerHTML = '';
+
+      var porCargo = {};
+      lista.forEach(function (x) {
+        (porCargo[x.cargo] = porCargo[x.cargo] || []).push(x);
+      });
+
+      var teveAlgo = false;
+
+      CARGOS.forEach(function (cargo) {
+        var itens = (porCargo[cargo.chave] || []).slice().sort(function (a, b) { return b.qtd - a.qtd; });
+        if (!itens.length) return;
+        teveAlgo = true;
+
+        var total = itens.reduce(function (s, x) { return s + x.qtd; }, 0);
+        var maximo = itens[0].qtd;
+
+        var bloco = document.createElement('div');
+        bloco.className = 'cargo';
+        bloco.innerHTML = '<h3>' + cargo.rotulo +
+          '<span class="conta">' + inteiro(itens.length) + ' número(s), ' + inteiro(total) + ' escolha(s)</span></h3>' +
+          '<table><thead><tr><th class="num">Nº</th><th>Candidato</th><th class="num">Vezes</th>' +
+          '<th class="num">Pessoas</th><th class="barra-cel"></th></tr></thead><tbody></tbody></table>';
+
+        var corpo = bloco.querySelector('tbody');
+
+        function linha(x) {
+          var cand = nomeDe(cargo.chave, x.numero);
+          var tr = document.createElement('tr');
+          tr.innerHTML =
+            '<td class="numero">' + x.numero + '</td>' +
+            '<td class="nome"></td>' +
+            '<td class="num">' + inteiro(x.qtd) + '</td>' +
+            '<td class="num">' + inteiro(x.pessoas) + '</td>' +
+            '<td class="barra-cel"><div class="mini" style="width:' + ((x.qtd / maximo) * 100).toFixed(1) + '%"></div></td>';
+          var celula = tr.querySelector('.nome');
+          celula.textContent = cand ? cand.nome : 'não encontrado na base';
+          celula.title = cand ? cand.nome + ' — ' + cand.partido : '';
+          if (cand) {
+            var sigla = document.createElement('span');
+            sigla.className = 'partido';
+            sigla.textContent = cand.partido;
+            celula.appendChild(sigla);
+          }
+          corpo.appendChild(tr);
+        }
+
+        var LIMITE = 15;
+        itens.slice(0, LIMITE).forEach(linha);
+
+        if (itens.length > LIMITE) {
+          var btn = document.createElement('button');
+          btn.className = 'mostrar-todos';
+          btn.type = 'button';
+          btn.textContent = 'mostrar os outros ' + (itens.length - LIMITE);
+          btn.addEventListener('click', function () {
+            itens.slice(LIMITE).forEach(linha);
+            btn.remove();
+          });
+          bloco.appendChild(btn);
+        }
+
+        caixa.appendChild(bloco);
+      });
+
+      if (!teveAlgo) {
+        caixa.innerHTML = '<p class="vazio">Ninguém preencheu números no período ainda.</p>';
+      }
+    }
+
+    /* ---------------------------- início ---------------------------- */
+
+    carregarBase().then(function () {
+      if (senha()) carregar(true);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+node_modules/
+tse/
+*.zip
+.DS_Store
+Thumbs.db
+
+# variaveis de ambiente (o .env.example fica no repo de proposito)
+.env
+.env.*
+!.env.example
+
+# vercel
+.vercel
+
+.env*

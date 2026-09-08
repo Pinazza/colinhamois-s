@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+  <title>Minha Colinha</title>
+  <meta name="description" content="Monte a sua colinha de votação, salve a imagem e não erre o número na urna.">
+  <meta name="theme-color" content="#0b4a9e">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="config.js"></script>
+</head>
+<body>
+
+  <div class="app-container">
+
+    <a href="/" class="btn-voltar" id="btn-voltar">&larr; Voltar para a página principal</a>
+
+    <div class="export-wrapper">
+      <!-- Área exportada como imagem (4:5 = 400x500) -->
+      <div class="export-area" id="santinho">
+
+        <div class="top-header" id="top-header">
+          <div class="header-art">
+            <div class="header-title">COMO VOTAR <span class="header-check">&#10003;</span></div>
+            <div class="header-sub">Confira o nome de cada candidato antes de votar.</div>
+          </div>
+        </div>
+
+        <div class="legal-vertical" id="legal-vertical"></div>
+
+        <div class="main-content" id="linhas"></div>
+
+        <div class="footer-santinho">
+          <span id="footer-site"></span><br>
+          Confira sempre o número do candidato na urna.
+        </div>
+
+        <div class="bottom-bar" id="bottom-bar"></div>
+
+        <div class="badge" id="badge"></div>
+
+      </div>
+    </div>
+
+    <div class="acoes">
+      <button class="btn-acao btn-primary" id="btn-salvar" type="button">SALVAR IMAGEM</button>
+      <button class="btn-acao btn-secondary" id="btn-compartilhar" type="button">COMPARTILHAR LINK</button>
+      <button class="btn-limpar" id="btn-limpar" type="button">limpar a colinha</button>
+
+      <p class="aviso-privacidade">
+        Contamos os acessos de forma anônima, para saber quantas pessoas usaram a
+        colinha. Não guardamos nada que identifique você.
+      </p>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

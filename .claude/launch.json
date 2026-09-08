@@ -1,0 +1,14 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "moises",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "scripts/servidor.mjs",
+        "4341"
+      ],
+      "port": 4341
+    }
+  ]
+}
