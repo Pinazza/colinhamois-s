@@ -106,7 +106,8 @@
       '<span class="b-cargo"></span>';
     arte.querySelector('.b-nome').textContent = fixo.nome || '';
     arte.querySelector('.b-numero').textContent = fixo.numero;
-    arte.querySelector('.b-cargo').textContent = cargoDoFixo ? cargoDoFixo.label : '';
+    // cargoRotulo permite ajustar o selo (ex.: "DEPUTADA ESTADUAL")
+    arte.querySelector('.b-cargo').textContent = fixo.cargoRotulo || (cargoDoFixo ? cargoDoFixo.label : '');
     selo.appendChild(arte);
   }
 
