@@ -237,6 +237,7 @@
   function montarLinhas() {
     var alvo = $('linhas');
     CARGOS.forEach(function (cargo) { alvo.appendChild(criarLinha(cargo)); });
+    ajustarTodasAsLinhas();
 
     CARGOS.forEach(function (cargo) {
       var linha = linhas[cargo.key];
@@ -263,12 +264,56 @@
     }
   }
 
+  /* O nome do candidato é a informação pela qual a colinha existe, então ele não
+     pode ser cortado: quando não cabe na linha, a linha inteira diminui até caber.
+     Só corta (com "...") se nem no menor tamanho couber. */
+  var TAM_NOME_MAX = 10;   // px, igual ao CSS
+  var TAM_NOME_MIN = 6.5;
+
+  /* scrollWidth não serve aqui: em contêiner flex o item que transborda não
+     entra na conta. Somar a largura dos filhos é o que mede de verdade. */
+  function larguraNecessaria(cabecalho) {
+    var filhos = cabecalho.children;
+    var total = 0;
+    for (var i = 0; i < filhos.length; i++) total += filhos[i].getBoundingClientRect().width;
+    var estilo = window.getComputedStyle(cabecalho);
+    var vao = parseFloat(estilo.columnGap || estilo.gap || '0') || 0;
+    if (filhos.length > 1) total += vao * (filhos.length - 1);
+    return total;
+  }
+
+  function ajustarLinhaDoNome(linha) {
+    var cabecalho = linha.info.parentElement;
+    cabecalho.style.fontSize = '';
+    cabecalho.classList.remove('apertado');
+
+    var disponivel = cabecalho.clientWidth;
+    if (!disponivel) return;              // linha ainda não está na tela
+
+    var tamanho = TAM_NOME_MAX;
+    while (larguraNecessaria(cabecalho) > disponivel && tamanho > TAM_NOME_MIN) {
+      tamanho -= 0.25;
+      cabecalho.style.fontSize = tamanho + 'px';
+    }
+    if (larguraNecessaria(cabecalho) > disponivel) cabecalho.classList.add('apertado');
+  }
+
+  function ajustarTodasAsLinhas() {
+    CARGOS.forEach(function (cargo) {
+      if (linhas[cargo.key]) ajustarLinhaDoNome(linhas[cargo.key]);
+    });
+  }
+
   /* -------------------------- Busca na base --------------------------- */
 
   function aplicarNumero(key, val) {
     var linha = linhas[key];
     if (!linha || linha.fixo) return;
+    preencherLinha(linha, val);
+    ajustarLinhaDoNome(linha);
+  }
 
+  function preencherLinha(linha, val) {
     var cargo = linha.cargo;
     val = String(val || '').replace(/\D/g, '').slice(0, cargo.digitos);
     if (linha.input && linha.input.value !== val) linha.input.value = val;
@@ -554,6 +599,8 @@
   document.addEventListener('visibilitychange', function () {
     if (document.visibilityState === 'hidden') enviarEvento('parcial', true);
   });
+
+  window.addEventListener('resize', ajustarTodasAsLinhas);
 
   $('btn-salvar').addEventListener('click', salvarImagem);
   $('btn-compartilhar').addEventListener('click', compartilhar);

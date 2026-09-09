@@ -193,19 +193,27 @@ body {
   gap: 4px;
   white-space: nowrap;
 }
-/* as duas ultimas linhas ficam na altura do selo: o nome para antes dele */
+/* As duas ultimas linhas ficam na altura do selo: o nome para antes dele.
+   Margin, nao padding: clientWidth inclui padding, e a medida de "cabe ou nao
+   cabe" feita no app.js precisa da largura real de conteudo. */
 .export-area.com-selo .candidate-row:nth-last-child(-n+2) .role-header {
-  padding-right: calc(var(--badge-size) - 15px);
+  margin-right: var(--badge-size);
 }
-.role-header .c-info {
-  min-width: 0;
+/* tamanhos em em: o app encolhe a linha inteira quando o nome e longo,
+   em vez de cortar o nome do candidato (que e a informacao que importa) */
+.role-header .c-nome { color: var(--blue-brand); font-size: 1em; }
+.role-header .c-partido { font-weight: normal; font-size: 0.8em; color: #555; }
+.role-header .c-erro { color: #cc1111; font-size: 0.9em; font-weight: bold; }
+
+/* sem encolher, o nome nao pode ser comprimido: assim da para medir o quanto falta */
+.role-header .c-info { flex: 0 0 auto; min-width: 0; }
+
+/* ultimo recurso: nome gigante mesmo no menor tamanho */
+.role-header.apertado .c-info {
+  flex: 1 1 auto;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
 }
-.role-header .c-nome { color: var(--blue-brand); font-size: 10px; }
-.role-header .c-partido { font-weight: normal; font-size: 8px; color: #555; }
-.role-header .c-erro { color: #cc1111; font-size: 9px; font-weight: bold; }
 
 .action-row {
   display: flex;
